@@ -55,5 +55,5 @@ password = os.environ.get('MY_PASSWORD')
 with smtplib.SMTP(host='smtp.gmail.com', port=587) as connection:
     connection.starttls()
     connection.login(user=my_email, password=password)
-    connection.sendmail(from_addr=my_email, to_addrs='other_email',
+    connection.sendmail(from_addr=my_email, to_addrs=other_email,
                         msg=f'Subject:Look up Dumbass!\n\nISS has been spotted in your local area')
