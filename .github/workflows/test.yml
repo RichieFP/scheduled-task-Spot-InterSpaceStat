@@ -23,8 +23,9 @@ jobs:
 
       - name: Check secrets are configured
         env:
-          MY_EMAIL: ${{ secrets.MY_EMAIL }}
+          MY_EMAIL:    ${{ secrets.MY_EMAIL }}
           MY_PASSWORD: ${{ secrets.MY_PASSWORD }}
+          OTHER_EMAIL: ${{ secrets.OTHER_EMAIL }}
         run: |
           if [ -z "$MY_EMAIL" ]; then
             echo "MY_EMAIL secret is not set!"
@@ -41,6 +42,13 @@ jobs:
           else
             echo "MY_PASSWORD is configured"
           fi
+
+          if [ -z "$OTHER_EMAIL"]; then
+            echo "What is the email we're sending the message to"
+            echo "Go to Settings > Secrets > Actions and add it."
+            exit 1
+          else
+            echo "|Send To| email is configured
 
           echo ""
           echo "All secrets are configured!"
