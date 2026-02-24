@@ -1,38 +1,59 @@
-# To run and test the code you need to update 4 places:
-# 1. Change MY_EMAIL/MY_PASSWORD to your own details.
-# 2. Go to your email provider and make it allow less secure apps.
-# 3. Update the SMTP ADDRESS to match your email provider.
-# 4. Update birthdays.csv to contain today's month and day.
-# See the solution video in the 100 Days of Python Course for explainations.
-
-
-from datetime import datetime
-import pandas
-import random
-import smtplib
 import os
+import requests
+from datetime import datetime
+import smtplib
 
-# import os and use it to get the Github repository secrets
-MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
+MY_LAT = 40.7128 
+MY_LONG = 74.0060
 
-today = datetime.now()
-today_tuple = (today.month, today.day)
+response = requests.get(url="http://api.open-notify.org/iss-now.json")
+response.raise_for_status()
+data = response.json()
 
-data = pandas.read_csv("birthdays.csv")
-birthdays_dict = {(data_row["month"], data_row["day"])                  : data_row for (index, data_row) in data.iterrows()}
-if today_tuple in birthdays_dict:
-    birthday_person = birthdays_dict[today_tuple]
-    file_path = f"letter_templates/letter_{random.randint(1, 3)}.txt"
-    with open(file_path) as letter_file:
-        contents = letter_file.read()
-        contents = contents.replace("[NAME]", birthday_person["name"])
+iss_latitude = float(data["iss_position"]["latitude"])
+iss_longitude = float(data["iss_position"]["longitude"])
 
-    with smtplib.SMTP("YOUR EMAIL PROVIDER SMTP SERVER ADDRESS") as connection:
-        connection.starttls()
-        connection.login(MY_EMAIL, MY_PASSWORD)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=birthday_person["email"],
-            msg=f"Subject:Happy Birthday!\n\n{contents}"
-        )
+def iss_within_range():
+    #Your position is within +5 or -5 degrees of the ISS position.
+    is_long =  MY_LONG - 5 <= iss_longitude <= MY_LONG + 5
+    is_lan =  MY_LAT - 5 <= iss_latitude <= MY_LAT + 5
+    if is_lan and is_long:
+        print('Within latitude and longitude range, target is locked and awaiting for orders')
+    elif is_lan:
+        print('Within latitude range, standby for longitude confirmation')
+    elif is_long:
+        print('Within longitude range, waiting for target to approach latitude range')
+    else:
+        print('No eyes on target, we repeat, the target is not locked')
+    return is_lan and is_long
+
+if iss_within_range():
+    parameters = {
+        "lat": MY_LAT,
+        "lng": MY_LONG,
+        "formatted": 0,
+    }
+    response = requests.get("https://api.sunrise-sunset.org/json", params=parameters)
+    response.raise_for_status()
+    data = response.json()
+    sunrise = int(data["results"]["sunrise"].split("T")[1].split(":")[0])
+    sunset = int(data["results"]["sunset"].split("T")[1].split(":")[0])
+
+    time_now = datetime.now().hour
+    is_dark = False
+    if time_now <= sunrise or time_now >= sunset:
+        print('It is dark')
+        is_dark = True
+    else:
+        print('It is day')
+
+
+my_email = os.environ.get('MY_EMAIL')
+other_email = os.environ.get('OTHER_EMAIL')
+password = os.environ.get('MY_PASSWORD')
+
+with smtplib.SMTP(host='smtp.gmail.com', port=587) as connection:
+    connection.starttls()
+    connection.login(user=my_gmail, password=password)
+    connection.sendmail(from_addr=my_email, to_addrs='other_email',
+                        msg=f'Subject:Look up Dumbass!\n\nISS has been spotted in your local area')
