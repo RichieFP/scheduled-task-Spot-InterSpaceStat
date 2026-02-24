@@ -40,20 +40,22 @@ if iss_within_range():
     sunset = int(data["results"]["sunset"].split("T")[1].split(":")[0])
 
     time_now = datetime.now().hour
-    is_dark = False
+    
     if time_now <= sunrise or time_now >= sunset:
         print('It is dark')
-        is_dark = True
+        my_email = os.environ.get('MY_EMAIL')
+        other_email = os.environ.get('OTHER_EMAIL')
+        password = os.environ.get('MY_PASSWORD')
+
+        with smtplib.SMTP(host='smtp.gmail.com', port=587) as connection:
+            connection.starttls()
+            connection.login(user=my_email, password=password)
+            connection.sendmail(from_addr=my_email, to_addrs=other_email,
+                                msg=f'Subject:Look up Dumbass!\n\nISS has been spotted in your local area')
+
     else:
         print('It is day')
+else:
+    print('The ISS is not near your area')
 
 
-my_email = os.environ.get('MY_EMAIL')
-other_email = os.environ.get('OTHER_EMAIL')
-password = os.environ.get('MY_PASSWORD')
-
-with smtplib.SMTP(host='smtp.gmail.com', port=587) as connection:
-    connection.starttls()
-    connection.login(user=my_email, password=password)
-    connection.sendmail(from_addr=my_email, to_addrs=other_email,
-                        msg=f'Subject:Look up Dumbass!\n\nISS has been spotted in your local area')
