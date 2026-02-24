@@ -1,1 +1,4 @@
-pandas
+os
+requests
+datetime
+smtplib
