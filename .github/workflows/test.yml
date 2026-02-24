@@ -49,6 +49,7 @@ jobs:
             exit 1
           else
             echo "|Send To| email is configured
+          fi
 
           echo ""
           echo "All secrets are configured!"
