@@ -3,8 +3,8 @@ import requests
 from datetime import datetime
 import smtplib
 
-MY_LAT = 40.7128 
-MY_LONG = 74.0060
+MY_LAT = 40.712776 
+MY_LONG = -74.005974
 
 response = requests.get(url="http://api.open-notify.org/iss-now.json")
 response.raise_for_status()
