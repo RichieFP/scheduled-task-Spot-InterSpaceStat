@@ -43,12 +43,12 @@ jobs:
             echo "MY_PASSWORD is configured"
           fi
 
-          if [ -z "$OTHER_EMAIL"]; then
+          if [ -z "$OTHER_EMAIL" ]; then
             echo "What is the email we're sending the message to"
             echo "Go to Settings > Secrets > Actions and add it."
             exit 1
           else
-            echo "|Send To| email is configured
+            echo "|Send To| email is configured"
           fi
 
           echo ""
